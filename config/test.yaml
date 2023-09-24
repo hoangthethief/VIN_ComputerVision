@@ -1,7 +1,7 @@
 feeder: feeder.feeder.LandscapeDataset
 
 train_feeder_args:
-  metadata_path: feeder/test.csv
+  metadata_path: feeder/train.csv
   test_mode: False
 
 test_feeder_args:
