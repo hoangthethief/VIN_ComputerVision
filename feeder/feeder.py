@@ -10,11 +10,15 @@ from albumentations.pytorch import ToTensorV2
 
 
 
-
 class LandscapeDataset(Dataset):
     def __init__(self, metadata_path, test_mode=False):
         self.metadata = pd.read_csv(metadata_path)
         self.test_mode = test_mode
+
+        self.label = ['Newyork', 'Singapore', 'Sydney', 'Venezia', 'Amsterdam', 'Roma',
+                        'Moscow', 'Hanoi', 'Rabat', 'Kyoto', 'Dubai', 'Rio', 'Maldives',
+                        'Paris', 'London']
+        self.mapping = {self.label[i]: i for i in range(len(self.label))}
 
 
         self.transform = A.Compose([
@@ -35,6 +39,7 @@ class LandscapeDataset(Dataset):
                                     ToTensorV2()])
 
 
+
     def __len__(self):
         return len(self.metadata)
     
@@ -45,15 +50,16 @@ class LandscapeDataset(Dataset):
         img = cv2.imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         label = self.metadata.iloc[idx, 1]
-
+        label = self.mapping[label]
 
         img = self.transform(image=img)['image']
 
         return [img, label]
     
+    
 
 if __name__ == '__main__':
-    metadata_path = 'data/metadata.csv'
+    metadata_path = 'feeder/train.csv'
     dataset = LandscapeDataset(metadata_path)
     data_loader = DataLoader(dataset, batch_size=8, shuffle=True)
 
