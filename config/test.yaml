@@ -1,7 +1,7 @@
 feeder: feeder.feeder.LandscapeDataset
 
 train_feeder_args:
-  metadata_path: feeder/test.csv
+  metadata_path: feeder/train.csv
   test_mode: False
 
 test_feeder_args:
@@ -16,7 +16,7 @@ model_args:
 
 #optim
 weight_decay: 0.0001
-base_lr: 0.3
+base_lr: 0.2
 lr_decay_rate: 0.1
 step: [50]
 
