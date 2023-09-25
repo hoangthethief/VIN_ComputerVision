@@ -52,6 +52,8 @@ class LandscapeDataset(Dataset):
         label = self.metadata.iloc[idx, 1]
         label = self.mapping[label]
 
+        
+
         img = self.transform(image=img)['image']
 
         return [img, label]

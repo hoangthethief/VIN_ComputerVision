@@ -1,4 +1,4 @@
-python runner.py \
-    --config config/Adam.yaml \
-    --work-dir work_dir/adam \
+python runner_caption.py \
+    --config config/Lion.yaml \
+    --work-dir work_dir/lion \
     --device 0

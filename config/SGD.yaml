@@ -10,7 +10,7 @@ test_feeder_args:
 
 
 # model
-model: model.resnet101.ResNet101
+model: model.resnet50.ResNet50
 model_args:
   num_class: 15
 

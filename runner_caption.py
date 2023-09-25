@@ -12,6 +12,7 @@ import traceback
 from collections import OrderedDict
 from lion_pytorch import Lion
 
+
 # torch
 import torch
 import torch.backends.cudnn as cudnn
@@ -193,7 +194,6 @@ class Processor():
         self.val_writer = SummaryWriter(os.path.join(arg.model_saved_name, 'val'), 'val')
 
 
-
         self.load_model()
         self.load_optimizer()
         self.load_data()
@@ -228,6 +228,8 @@ class Processor():
             num_workers=self.arg.num_worker,
             drop_last=False,
             worker_init_fn=init_seed)
+        
+        
 
 
     def load_model(self):
@@ -257,6 +259,7 @@ class Processor():
                 self.model.parameters(),
                 lr=self.arg.base_lr,
                 weight_decay=self.arg.weight_decay)
+            
         elif self.arg.optimizer == 'Lion':
             self.optimizer = Lion(
                 self.model.parameters(),
@@ -291,16 +294,16 @@ class Processor():
 
         process = tqdm(loader, ncols=40)
 
-        for batch_idx, (data, label) in enumerate(process):
-            self.global_step += 1
-            with torch.no_grad():
+        for idx, (path, images, captions, label) in enumerate(process):
+            images = images.cuda()
+            captions = captions.cuda()
+            label = label.cuda()
 
-                data = data.float().cuda(self.output_device)
-                label = label.long().cuda(self.output_device)
+
 
             # forward
-            output = self.model(data)
-            loss = self.loss(output , label)
+            output = self.model(images, captions)
+            loss = self.loss(output, label)
             # backward
             self.optimizer.zero_grad()
             loss.backward()
@@ -319,7 +322,7 @@ class Processor():
             self.lr = self.optimizer.param_groups[0]['lr']
             self.train_writer.add_scalar('lr', self.lr, self.global_step)
 
-            # break
+            break
 
         print('\tMean training loss: {:.4f}.  Mean training acc: {:.2f}%.'.format(np.mean(loss_value), np.mean(acc_value)*100))
 
@@ -342,12 +345,19 @@ class Processor():
             acc_value = []
             step = 0
             process = tqdm(self.data_loader[ln], ncols=40)
-            for batch_idx, (data, label) in enumerate(process):
+
+
+            for idx, (path, images, captions, label) in enumerate(process):
                 label_list.append(label)
+
                 with torch.no_grad():
-                    data = data.float().cuda(self.output_device)
+                    images = images.cuda()
+                    captions = captions.cuda()
+
+                    images = images.float().cuda(self.output_device)
                     label = label.long().cuda(self.output_device)
-                    output = self.model(data)
+                    output = self.model(images, captions)
+
                     loss = self.loss(output , label)
                     score_frag.append(output.data.cpu().numpy())
                     loss_value.append(loss.data.item())
@@ -360,7 +370,7 @@ class Processor():
                     acc_value.append(acc.data.item())
                 
 
-                # break
+                break
 
             score = np.concatenate(score_frag)
             loss = np.mean(loss_value)
@@ -382,6 +392,7 @@ class Processor():
             confusion = confusion_matrix(label_list, pred_list)
             list_diag = np.diag(confusion)
             list_raw_sum = np.sum(confusion, axis=1)
+            print(list_diag, list_raw_sum)
             each_acc = list_diag / list_raw_sum
             with open('{}/epoch{}_{}_each_class_acc.csv'.format(self.arg.work_dir, epoch + 1, ln), 'w') as f:
                 writer = csv.writer(f)

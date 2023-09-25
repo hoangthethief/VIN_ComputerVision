@@ -52,10 +52,16 @@ class LandscapeDataset(Dataset):
         
         img = cv2.imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        label = self.metadata.iloc[idx, 1]
-        label = self.mapping[label]
+        label_origin = self.metadata.iloc[idx, 1]
+        label = self.mapping[label_origin]
 
         caption = self.metadata.iloc[idx, 2]
+
+        if not self.test_mode:
+            caption = 'A picture of ' + caption + ' in ' + label_origin
+        else:
+            caption = 'A picture of ' + caption 
+        
         caption = self.text_embedder(caption).vector
 
         img = self.transform(image=img)['image']
@@ -66,16 +72,17 @@ class LandscapeDataset(Dataset):
 
 if __name__ == '__main__':
     metadata_path = 'feeder/train.csv'
-    dataset = LandscapeDataset(metadata_path)
-    data_loader = DataLoader(dataset, batch_size=8, shuffle=True)
+    test_path = 'feeder/test.csv'
 
-    c = 0
+    batch_size = 16
+    
+    train_dataset = LandscapeDataset(metadata_path)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-    for path, image, caption, y in data_loader:
-        print(path)
-        print(image.shape)
-        print(caption.shape)
-        print(y)
-        print("======")
+    test_dataset = LandscapeDataset(test_path)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
-        break
+
+    print(len(train_loader))
+
+    print(len(test_loader))

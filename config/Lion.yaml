@@ -1,4 +1,4 @@
-feeder: feeder.feeder.LandscapeDataset
+feeder: feeder.feeder_caption.LandscapeDataset
 
 train_feeder_args:
   metadata_path: feeder/train.csv
@@ -10,22 +10,23 @@ test_feeder_args:
 
 
 # model
-model: model.resnet50.ResNet50
+model: model.caption_vu.CombinationModel
 model_args:
   num_class: 15
 
 #optim
-optimizer: Adam
-weight_decay: 0.0001
-base_lr: 0.001
+optimizer: Lion
+weight_decay: 1e-2
+base_lr: 1e-4
 lr_decay_rate: 0.1
 step: [15]
 adjust_lr: False
 
+
 # training
 device: [0]
 batch_size: 16
-test_batch_size: 64
+test_batch_size: 16
 num_epoch: 25
 nesterov: True
 warm_up_epoch: 5

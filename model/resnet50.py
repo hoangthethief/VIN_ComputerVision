@@ -3,10 +3,10 @@ import torchvision.models as models
 from torchvision import datasets, transforms, models
 import torch.nn as nn
 
-class ResNet101(nn.Module):
+class ResNet50(nn.Module):
     def __init__(self, num_class):
-        super(ResNet101, self).__init__()
-        self.model = models.resnet101(weights=models.ResNet101_Weights.DEFAULT) 
+        super(ResNet50, self).__init__()
+        self.model = models.resnet50(weights=models.ResNet50_Weights.DEFAULT) 
         in_features = self.model.fc.in_features
         self.model.fc = nn.Sequential(
             nn.Linear(in_features, 256),
@@ -30,12 +30,8 @@ if __name__ == '__main__':
 
     from torchinfo import summary
 
-    model = ResNet101(15)
+    model = ResNet50(15)
 
-
-    # for name, param in model.named_parameters():
-    #     print(name)
-        # param.requires_grad = True
 
     summary(model, (1, 3, 256, 256))
 
