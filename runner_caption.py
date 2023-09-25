@@ -294,7 +294,33 @@ class Processor():
 
         process = tqdm(loader, ncols=40)
 
+        for idx, (path, images, captions, label) in enumerate(process):
+            images = images.cuda()
+            captions = captions.cuda()
+            label = label.cuda()
 
+
+
+            # forward
+            output = self.model(images, captions)
+            loss = self.loss(output, label)
+            # backward
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+
+            loss_value.append(loss.data.item())
+
+
+            value, predict_label = torch.max(output.data, 1)
+            acc = torch.mean((predict_label == label.data).float())
+            acc_value.append(acc.data.item())
+            self.train_writer.add_scalar('acc', acc, self.global_step)
+            self.train_writer.add_scalar('loss', loss.data.item(), self.global_step)
+
+            # statistics
+            self.lr = self.optimizer.param_groups[0]['lr']
+            self.train_writer.add_scalar('lr', self.lr, self.global_step)
 
             # break
 
@@ -324,24 +350,27 @@ class Processor():
             for idx, (path, images, captions, label) in enumerate(process):
                 label_list.append(label)
 
-                # with torch.no_grad():
-                images = images.cuda()
-                captions = captions.cuda()
+                with torch.no_grad():
+                    images = images.cuda()
+                    captions = captions.cuda()
 
-                images = images.float().cuda(self.output_device)
-                label = label.long().cuda(self.output_device)
-                output = self.model(images, captions)
+                    images = images.float().cuda(self.output_device)
+                    label = label.long().cuda(self.output_device)
+                    output = self.model(images, captions)
 
-                loss = self.loss(output, label)
-                score_frag.append(output.data.cpu().numpy())
-                loss_value.append(loss.data.item())
+                    loss = self.loss(output , label)
+                    score_frag.append(output.data.cpu().numpy())
+                    loss_value.append(loss.data.item())
 
-                _, predict_label = torch.max(output.data, 1)
-                pred_list.append(predict_label.data.cpu().numpy())
-                step += 1
+                    _, predict_label = torch.max(output.data, 1)
+                    pred_list.append(predict_label.data.cpu().numpy())
+                    step += 1
 
-                acc = torch.mean((predict_label == label.data).float())
-                acc_value.append(acc.data.item())
+                    acc = torch.mean((predict_label == label.data).float())
+
+                    print(predict_label, label)
+                    print(acc_value)
+                    acc_value.append(acc.data.item())
                 
 
                 # break
@@ -366,7 +395,7 @@ class Processor():
             confusion = confusion_matrix(label_list, pred_list)
             list_diag = np.diag(confusion)
             list_raw_sum = np.sum(confusion, axis=1)
-
+            
             each_acc = list_diag / list_raw_sum
             with open('{}/epoch{}_{}_each_class_acc.csv'.format(self.arg.work_dir, epoch + 1, ln), 'w') as f:
                 writer = csv.writer(f)
