@@ -1,4 +1,4 @@
 python runner.py \
-    --config config/test.yaml \
-    --work-dir work_dir/test \
+    --config config/Adam.yaml \
+    --work-dir work_dir/adam \
     --device 0

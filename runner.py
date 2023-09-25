@@ -277,7 +277,7 @@ class Processor():
     def train(self, epoch, save_model=False):
         self.model.train()
         loader = self.data_loader['train']
-        if self.adjust_lr:
+        if self.arg.adjust_lr:
             self.adjust_learning_rate(epoch)
 
         loss_value = []
@@ -314,10 +314,11 @@ class Processor():
             self.lr = self.optimizer.param_groups[0]['lr']
             self.train_writer.add_scalar('lr', self.lr, self.global_step)
 
+            # break
+
         print('\tMean training loss: {:.4f}.  Mean training acc: {:.2f}%.'.format(np.mean(loss_value), np.mean(acc_value)*100))
 
 
-            # break
 
         if save_model:
             state_dict = self.model.state_dict()
@@ -363,7 +364,8 @@ class Processor():
                 self.best_acc = accuracy
                 self.best_acc_epoch = epoch + 1
 
-            print('Accuracy: ', accuracy, ' model: ', self.arg.model_saved_name)
+            print('\tAccuracy: ', accuracy, ' model: ', self.arg.model_saved_name)
+            print('\n')
 
             self.val_writer.add_scalar('loss', loss, self.global_step)
             self.val_writer.add_scalar('acc', accuracy, self.global_step)
