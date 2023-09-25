@@ -70,7 +70,7 @@ class LandscapeDataset(Dataset):
     
     
 
-if __name__ == '__main__':
+if __name__ == '_main_':
     metadata_path = 'feeder/train.csv'
     test_path = 'feeder/test.csv'
 
