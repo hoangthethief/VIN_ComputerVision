@@ -102,7 +102,7 @@ def get_parser():
     parser.add_argument(
         '--num-worker',
         type=int,
-        default=8,
+        default=2,
         help='the number of worker for data loader')
     parser.add_argument(
         '--train-feeder-args',
@@ -145,7 +145,7 @@ def get_parser():
         default=0,
         nargs='+',
         help='the indexes of GPUs for training or testing')
-    parser.add_argument('--optimizer', default='SGD', help='type of optimizer')
+    parser.add_argument('--optimizer', default='Adam', help='type of optimizer')
     parser.add_argument(
         '--nesterov', type=bool, default=False, help='use nesterov or not')
     parser.add_argument(
