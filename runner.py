@@ -174,6 +174,9 @@ def get_parser():
         help='decay rate for learning rate')
 
     parser.add_argument('--warm_up_epoch', type=int, default=0)
+    parser.add_argument('--adjust_lr', type=bool, default=True)
+
+
     # force rerun
 
     return parser
@@ -274,7 +277,8 @@ class Processor():
     def train(self, epoch, save_model=False):
         self.model.train()
         loader = self.data_loader['train']
-        self.adjust_learning_rate(epoch)
+        if self.adjust_lr:
+            self.adjust_learning_rate(epoch)
 
         loss_value = []
         acc_value = []
