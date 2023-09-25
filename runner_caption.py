@@ -353,9 +353,7 @@ class Processor():
                 with torch.no_grad():
                     images = images.cuda()
                     captions = captions.cuda()
-
-                    images = images.float().cuda(self.output_device)
-                    label = label.long().cuda(self.output_device)
+                    label = label.cuda()
                     output = self.model(images, captions)
 
                     loss = self.loss(output , label)
