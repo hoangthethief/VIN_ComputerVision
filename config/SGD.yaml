@@ -17,7 +17,7 @@ model_args:
 #optim
 optimizer: SGD
 weight_decay: 0.0001
-base_lr: 0.001
+base_lr: 0.02
 lr_decay_rate: 0.1
 step: [15]
 
